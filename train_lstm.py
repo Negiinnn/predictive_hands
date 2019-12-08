@@ -3,6 +3,7 @@ import torch
 from torch import nn, optim
 from simple_lstm import *
 from all_data import *
+from forward_kinematics import *
 import random
 
 input_dim = 63
@@ -45,8 +46,12 @@ if __name__ == "__main__":
         input_tensor = subtract_wrist(input_tensor)
         target_tensor = subtract_wrist(target_tensor)
     elif mods == 'angle_tensor':
+        vis_py_test = input_tensor.cpu().numpy()[0:3, 0, :]
         input_tensor = get_angle_tensor(input_tensor, angle_indices, seq_lengths)
         target_tensor = get_angle_tensor(target_tensor, angle_indices, seq_lengths)
+        input_hands = angle_tensor_to_hand(input_tensor, angle_indices, seq_lengths)
+        vis_py_target = input_hands.cpu().numpy()[0:20, 0, :]
+        visualize_hands([vis_py_target])
 
     num_points = len(seq_lengths)
     shuffled_indices = list(range(len(seq_lengths)))

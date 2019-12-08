@@ -200,7 +200,7 @@ angle_indices = [[0,1,2], [1,2,3], [2,3,4],
                  [0,9,10], [9,10,11], [10,11,12],
                  [0,13,14], [13,14,15], [14,15,16],
                  [0,17,18], [17,18,19], [18,19,20],
-                 [1,0,9], [5,0,9], [9,0,13], [13,0,17]]
+                 [2,0,9], [5,0,9], [9,0,13], [13,0,17]]
 
 def get_angle_tensor(cur_tensor, angle_indices, seq_lengths):
     num_angles = len(angle_indices)
@@ -211,7 +211,7 @@ def get_angle_tensor(cur_tensor, angle_indices, seq_lengths):
         for j in range(3):
             ind = points[j]
             p[j] = cur_tensor[:, :, [ind*3, ind*3+1,ind*3+2]]
-        v0 = p[0] - p[1] + .0000001
+        v0 = -(p[0] - p[1]) + .0000001
         v1 = p[2] - p[1] + .0000001
         norm0 = torch.norm(v0, p=2, dim=2)
         norm1 = torch.norm(v1, p=2, dim=2)
