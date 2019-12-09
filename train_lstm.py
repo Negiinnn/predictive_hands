@@ -16,7 +16,7 @@ cuda = torch.device('cuda')
 random.seed(0)
 test_name = "angle_with_recon2"
 mods = "angle_tensor"
-recon_loss = False
+recon_loss = True
 angle_indices = [[0,1,2], [1,2,3], [2,3,4],
                  [0,5,6], [5,6,7], [6,7,8],
                  [0,9,10], [9,10,11], [10,11,12],
@@ -25,10 +25,8 @@ angle_indices = [[0,1,2], [1,2,3], [2,3,4],
                  [1,0,9], [5,0,9], [9,0,13], [13,0,17]]
 if mods == "angle_tensor":
     input_dim = 19
-    hidden_dim = 32
+    hidden_dim = 128
 
-#def loss_function(output, target):
-#    return torch.mean((torch.abs(target-output) + eps) / (torch.abs(target) + eps))
 loss_function = torch.nn.MSELoss()
 
 if __name__ == "__main__":

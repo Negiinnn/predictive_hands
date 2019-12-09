@@ -224,12 +224,6 @@ def get_angle_tensor(cur_tensor, angle_indices, seq_lengths):
         new_tensor[seq_length:, i, :] = 0
     return new_tensor
 
-
-
-
-
-
-
 if __name__ == "__main__":
     pass
     # json_to_pkl()
