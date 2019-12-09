@@ -14,8 +14,9 @@ epochs = 10000
 lr = 1e-4
 cuda = torch.device('cuda')
 random.seed(0)
-test_name = "angle_tensor"
+test_name = "angle_with_recon2"
 mods = "angle_tensor"
+recon_loss = False
 angle_indices = [[0,1,2], [1,2,3], [2,3,4],
                  [0,5,6], [5,6,7], [6,7,8],
                  [0,9,10], [9,10,11], [10,11,12],
@@ -24,6 +25,7 @@ angle_indices = [[0,1,2], [1,2,3], [2,3,4],
                  [1,0,9], [5,0,9], [9,0,13], [13,0,17]]
 if mods == "angle_tensor":
     input_dim = 19
+    hidden_dim = 32
 
 #def loss_function(output, target):
 #    return torch.mean((torch.abs(target-output) + eps) / (torch.abs(target) + eps))
@@ -42,16 +44,12 @@ if __name__ == "__main__":
     input_tensor = torch.from_numpy(input_numpy).float().to(cuda)
     target_tensor = torch.from_numpy(target_numpy).float().to(cuda)
 
-    if mods == 'subtract_wrist':
-        input_tensor = subtract_wrist(input_tensor)
-        target_tensor = subtract_wrist(target_tensor)
-    elif mods == 'angle_tensor':
-        vis_py_test = input_tensor.cpu().numpy()[0:3, 0, :]
+    if mods == 'angle_tensor':
         input_tensor = get_angle_tensor(input_tensor, angle_indices, seq_lengths)
         target_tensor = get_angle_tensor(target_tensor, angle_indices, seq_lengths)
-        input_hands = angle_tensor_to_hand(input_tensor, angle_indices, seq_lengths)
-        vis_py_target = input_hands.cpu().numpy()[0:20, 0, :]
-        visualize_hands([vis_py_target])
+    elif mods == 'recon_tensor':
+        input_tensor = angle_tensor_to_hand(get_angle_tensor(input_tensor, angle_indices, seq_lengths))
+        target_tensor = angle_tensor_to_hand(get_angle_tensor(target_tensor, angle_indices, seq_lengths))
 
     num_points = len(seq_lengths)
     shuffled_indices = list(range(len(seq_lengths)))
@@ -80,7 +78,10 @@ if __name__ == "__main__":
 
             model.zero_grad()
             out = model(lstm_in)
-            loss = loss_function(out, target_batch)
+            if recon_loss:
+                loss = loss_function(angle_tensor_to_hand(out), angle_tensor_to_hand(target_batch))
+            else:
+                loss = loss_function(out, target_batch)
             with torch.no_grad():
                 train_loss += loss
             loss.backward()
@@ -92,7 +93,11 @@ if __name__ == "__main__":
             lstm_in = torch.nn.utils.rnn.pack_padded_sequence(test_all,
                                                               [seq_lengths[t] - time_ahead for t in sorted_test])
             test_out = model(lstm_in)
-            print("hello")
+            if recon_loss:
+                test_out = angle_tensor_to_hand(test_out)
+                test_all = angle_tensor_to_hand(test_all)
+                target_test = angle_tensor_to_hand(target_test)
+            print(epoch)
             print(loss_function(test_out, target_test))
             print(loss_function(test_out, test_all))
             print(loss_function(test_all, target_test))
@@ -101,7 +106,7 @@ if __name__ == "__main__":
             loss_2.append(loss_function(test_out, test_all))
             loss_3.append(loss_function(test_all, target_test))
             loss_4.append(train_loss)
-            if epoch % 50 == 0:
+            if epoch % 20 == 0:
                 torch.save(model, test_name + "/model_" + str(epoch) + ".pt")
                 file_object = open(test_name + "/losses_" + str(epoch) + ".pkl", 'wb')
                 pickle.dump((loss_1, loss_2, loss_3, loss_4), file_object)

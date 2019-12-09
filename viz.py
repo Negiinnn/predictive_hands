@@ -53,12 +53,12 @@ def visualize_hands(hand_type_in):
 
     plt.show()
 
-def plot_loss(losses):
+def plot_loss(losses, ymax=50):
     for loss in losses:
         plt.plot(range(len(loss)), loss)
     axes = plt.gca()
     #axes.set_xlim([xmin, xmax])
-    axes.set_ylim([0, 50])
+    axes.set_ylim([0, ymax])
     plt.legend([r'$loss(Y, \hat{Y})$',r'$loss(X, \hat{Y})$',r'$loss(X, Y)$'])
     plt.title("Test losses")
     plt.xlabel("Epoch #")
