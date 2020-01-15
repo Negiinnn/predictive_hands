@@ -10,12 +10,11 @@ from viz import visualize_hands
 plt.rcParams['image.interpolation'] = 'nearest'
 
 # Setup paths
-data_path = '../../../hand_data/'
+data_path = '../hand_data/'
 data_dirs = glob.glob(data_path + "*/hdHand3d/")
 total_hands = 0
 hand_sequences = {}
 hand_data_dir = data_path + "pkls/"
-hand_data_dir2 = data_path + "pkls3/"
 all_sequences_name = data_path + "/hand_sequences.pkl"
 sequence_tensor_name = data_path + "/sequence_tensor.pkl"
 
@@ -42,43 +41,18 @@ def json_to_pkl():
                 for person in hframe['people']:
                     if "id" in person.keys():
                         if 'right_hand' in person.keys():
-                            cur_id = str(person["id"]) + 'r'
+                            cur_id = str(person["id"])
                             if cur_id not in dir_hand_seq.keys():
                                 dir_hand_seq[cur_id] = {}
                             dir_hand_seq[cur_id][json_num] = person["right_hand"]
                         if 'left_hand' in person.keys():
-                            cur_id = str(person["id"]) + 'l'
+                            cur_id = str(person["id"])
                             if cur_id not in dir_hand_seq.keys():
                                 dir_hand_seq[cur_id] = {}
                             dir_hand_seq[cur_id][json_num] = person["left_hand"]
             file_object = open(hand_data_dir + data_name + ".pkl", 'wb')
             pickle.dump(dir_hand_seq, file_object)
             file_object.close()
-
-
-def fix_data():
-    pkl_dirs = glob.glob(hand_data_dir + "*.pkl")
-    for pkl_dir in pkl_dirs:
-        print(pkl_dir)
-        pkl_name = pkl_dir.split('\\')[-1]
-        file_object = open(pkl_dir, 'rb')
-        cur_hand_seq = pickle.load(file_object)
-        file_object.close()
-        old_ids = list(cur_hand_seq.keys())
-        for id in old_ids:
-            cur_id_data = cur_hand_seq[id]
-            new_id = id[0:-1]
-            if new_id not in cur_hand_seq:
-                cur_hand_seq[new_id] = {}
-            else:
-                continue
-            for t_index in cur_id_data.keys():
-                cur_hand_seq[new_id][t_index] = cur_hand_seq[id][t_index]
-        for id in old_ids:
-            del cur_hand_seq[id]
-        file_object = open(hand_data_dir2 + pkl_name, 'wb')
-        pickle.dump(cur_hand_seq, file_object)
-        file_object.close()
 
 '''
 Converts pkl dictionaries to numpy array
