@@ -14,14 +14,15 @@ angle_indices = [[0,1,2], [1,2,3], [2,3,4],
                  [0,17,18], [17,18,19], [18,19,20],
                  [1,0,9], [5,0,9], [9,0,13], [13,0,17]]
 test_names = ["original_hands", "angle_with_recon", "recon_only"]
-modses = [None, "angle_tensor", "recon_tensor"]
+mod_list = [None, "angle_tensor", "recon_tensor"]
 titles = ["Loss on Tracked Hands", "Loss on Reconstructed Hands with Angle Training", "Loss on Reconstructed Hands"]
 ymaxes = [50,2,60]
 epochs = [1000,600,2000]
+data_index = 17
 
 test_index = 2
 test_name = test_names[test_index]
-mods = modses[test_index]
+mods = mod_list[test_index]
 title = titles[test_index]
 ymax = ymaxes[test_index]
 epoch = epochs[test_index]
@@ -30,23 +31,9 @@ file_object = open(test_name + "/losses_"+str(epoch) + ".pkl", 'rb')
 losses = pickle.load(file_object)
 file_object.close()
 
-# test_index = 2
-# test_name = test_names[test_index]
-# mods = modses[test_index]
-# title = titles[test_index]
-# ymax = ymaxes[test_index]
-# epoch = epochs[test_index]
-#
-# file_object = open(test_name + "/losses_"+str(epoch) + ".pkl", 'rb')
-# losses2 = pickle.load(file_object)
-# file_object.close()
-#
-# plot_double_loss(losses1[0:1], losses2[0:1], losses2[2:3], title = 'Angle v Reconstructed Loss', ymax = 3)
-#
 print(np.min([loss.cpu().numpy().item() for loss in losses[0]]))
 print([loss.cpu().numpy().item() for loss in losses[1]])
 print([loss.cpu().numpy().item() for loss in losses[2]])
-# #print([loss.cpu().numpy().item() for loss in losses[3]])
 
 plot_loss(losses[0:3], title = title, ymax=ymax)
 
@@ -90,12 +77,10 @@ with torch.no_grad():
         test_out = angle_tensor_to_hand(test_out)
         target_test = angle_tensor_to_hand(target_test)
         test_all = angle_tensor_to_hand(test_all)
-    i=17
-    #i=52
     vis_py = np.zeros((2,63))
-    vis_py_test= test_out.cpu().numpy()[100:101, i, :]
-    vis_py_target = target_test.cpu().numpy()[100:101, i, :]
-    vis_py_in = test_all.cpu().numpy()[97:101, i, :]
+    vis_py_test= test_out.cpu().numpy()[100:101, data_index, :]
+    vis_py_target = target_test.cpu().numpy()[100:101, data_index, :]
+    vis_py_in = test_all.cpu().numpy()[97:101, data_index, :]
     visualize_hands([vis_py_test, vis_py_target, vis_py_in])
 
 

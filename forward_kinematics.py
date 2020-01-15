@@ -22,19 +22,24 @@ angle_indices = [[0,1,2], [1,2,3], [2,3,4],
                  [0,17,18], [17,18,19], [18,19,20],
                  [1,0,9], [5,0,9], [9,0,13], [13,0,17]]
 
+segment_length = 6
+num_points = 21
+
+"""
+Input: Instrinsic representation with joint angles
+Output: Extrinsic representation
+"""
 def angle_tensor_to_hand(cur_tensor):
-    segment_length = 6
-    new_tensor = torch.zeros(cur_tensor.shape[0], cur_tensor.shape[1], 63, device=cur_tensor.device,
+    new_tensor = torch.zeros(cur_tensor.shape[0], cur_tensor.shape[1], num_points*3, device=cur_tensor.device,
                              dtype=cur_tensor.dtype)
     i = 0
     new_tensor[:, :, i * 3] = -1*segment_length
-    #new_tensor[:, :, i * 3+2] = 2*segment_length/3
     i += 1
     fing_num = 0
     for finger in forward_dict:
         unit_vector = torch.zeros(cur_tensor.shape[0], cur_tensor.shape[1], 4, 1, device=cur_tensor.device,
                                   dtype=cur_tensor.dtype)
-        unit_vector[:,:,3,:] = 1 #whatever the name is for the vector thing with a 1
+        unit_vector[:,:,3,:] = 1 #homogenous coordinates
 
         unit_vector[:,:,2,:] = fing_num*segment_length/3
 
@@ -54,8 +59,6 @@ def angle_tensor_to_hand(cur_tensor):
                 rotation_indices.append(finger['finger_angles'][finger_angle_i_sum])
             rotation_amount = torch.sum(cur_tensor[:,:,rotation_indices], dim=2)
             rotation_matrix = generate_rotation_matrix(rotation_amount)
-            #translation_matrix =generate_translation_matrix(translation_amount)
-            #transformation_matrix = torch.matmul(rotation_matrix, translation_matrix)
             prev_tensor = torch.matmul(rotation_matrix, unit_vector) + prev_tensor
             new_tensor[:, :, i * 3:i * 3 + 3] = prev_tensor[:, :, 0:3, 0]
             i = i+1

@@ -12,7 +12,6 @@ plt.rcParams['image.interpolation'] = 'nearest'
 # Setup paths
 data_path = '../../../hand_data/'
 data_dirs = glob.glob(data_path + "*/hdHand3d/")
-print(data_dirs)
 total_hands = 0
 hand_sequences = {}
 hand_data_dir = data_path + "pkls/"
@@ -20,6 +19,10 @@ hand_data_dir2 = data_path + "pkls3/"
 all_sequences_name = data_path + "/hand_sequences.pkl"
 sequence_tensor_name = data_path + "/sequence_tensor.pkl"
 
+'''
+Input: json files from cmu panoptic
+Output: pkl file with data in dictionary format
+'''
 
 def json_to_pkl():
     for data_dir in data_dirs:
@@ -31,7 +34,6 @@ def json_to_pkl():
         else:
             dir_hand_seq = {}
             hand_jsons = glob.glob(data_dir + "*.json")
-            hand_found = 0
             for hand_json in hand_jsons:
                 json_num = int(hand_json[hand_json.find('_hd') + 3:hand_json.find('.json')])
 
@@ -78,7 +80,9 @@ def fix_data():
         pickle.dump(cur_hand_seq, file_object)
         file_object.close()
 
-
+'''
+Converts pkl dictionaries to numpy array
+'''
 def pkl_to_seq():
     if os.path.isfile(all_sequences_name):
         print("Loading sequences...")
@@ -123,7 +127,9 @@ def pkl_to_seq():
         pickle.dump(all_sequences, file_object)
         file_object.close()
 
-
+'''
+Create tensor from numpy array
+'''
 def seq_to_tensor():
     if os.path.isfile(sequence_tensor_name):
         print("Loading sequences...")
@@ -170,7 +176,9 @@ def seq_to_tensor():
     return out_np_array, seq_lengths
 
 time_ahead = 2
-
+'''
+Call to make tensors without offsets for input
+'''
 def generate_input():
     input_tensor, seq_lengths = seq_to_tensor()
     for i in range(time_ahead):
@@ -178,16 +186,12 @@ def generate_input():
     input_tensor = input_tensor[0:-time_ahead, :, :]
     return input_tensor, seq_lengths
 
-
+'''
+Call to make tensors without offsets for input
+'''
 def generate_output():
     output_tensor, seq_lengths = seq_to_tensor()
     return output_tensor[time_ahead:, :, :], seq_lengths
-
-def subtract_wrist(cur_tensor):
-    wrists = cur_tensor[:,:,0:3]
-    wrist_rep = wrists.repeat(1, 1, int(cur_tensor.shape[2]/3))
-    out_tensor = cur_tensor - wrist_rep
-    return out_tensor
 
 hand_edges = np.array([[0, 1], [1, 2], [2, 3], [3, 4],
                            [0, 5], [5, 6], [6, 7], [7, 8],
@@ -202,6 +206,9 @@ angle_indices = [[0,1,2], [1,2,3], [2,3,4],
                  [0,17,18], [17,18,19], [18,19,20],
                  [2,0,9], [5,0,9], [9,0,13], [13,0,17]]
 
+'''
+Converst from base format to intrinsic format with angles
+'''
 def get_angle_tensor(cur_tensor, angle_indices, seq_lengths):
     num_angles = len(angle_indices)
     new_tensor = torch.zeros(cur_tensor.shape[0], cur_tensor.shape[1], num_angles, device=cur_tensor.device, dtype=cur_tensor.dtype)

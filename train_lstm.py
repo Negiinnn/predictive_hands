@@ -23,6 +23,7 @@ angle_indices = [[0,1,2], [1,2,3], [2,3,4],
                  [0,13,14], [13,14,15], [14,15,16],
                  [0,17,18], [17,18,19], [18,19,20],
                  [1,0,9], [5,0,9], [9,0,13], [13,0,17]]
+# "angle_tensor" or "recon_tensor", if either of those are input
 if mods == "angle_tensor":
     input_dim = 19
     hidden_dim = 128
@@ -65,7 +66,6 @@ if __name__ == "__main__":
         num_batches = int(len(train_indices) / batch_size)
         train_loss = 0
         for i in range(num_batches):
-           # print(i)
             if i == list(range(num_batches))[-1]:
                 sorted_batch = sorted(train_indices[i * batch_size:])
             else:
