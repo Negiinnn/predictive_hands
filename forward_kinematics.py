@@ -14,6 +14,10 @@ forward_dict.append({'finger_angles' : [6,7,8], 'sep_angle' : 16})
 forward_dict.append({'finger_angles' : [9,10,11], 'sep_angle' : 17})
 forward_dict.append({'finger_angles' : [12,13,14], 'sep_angle' : 18})
 
+#middle finger gives a plane, then we rotate so that plane is the z-y plane
+# use which side the thumb/pinkie areon to know if we're flipped lol
+#then 0 it at the wrist
+#fundemental form geometry
 
 angle_indices = [[0,1,2], [1,2,3], [2,3,4],
                  [0,5,6], [5,6,7], [6,7,8],
