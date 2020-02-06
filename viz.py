@@ -30,7 +30,7 @@ def visualize_hands(hand_data_in):
     for hand_data in hand_data_in:
         j = 0
         for hand in hand_data:
-            hand3d = hand.reshape((-1, 3)).transpose()
+            hand3d = np.reshape(hand, (-1, 3)).transpose()
 
             # Plot edges for each bone
             color_mod =(j+1)/len(hand_data)

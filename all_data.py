@@ -10,13 +10,14 @@ from viz import visualize_hands
 plt.rcParams['image.interpolation'] = 'nearest'
 
 # Setup paths
-data_path = '../hand_data/'
+data_path = '../../hand_data/'
 data_dirs = glob.glob(data_path + "*/hdHand3d/")
 total_hands = 0
 hand_sequences = {}
 hand_data_dir = data_path + "pkls/"
 all_sequences_name = data_path + "/hand_sequences.pkl"
 sequence_tensor_name = data_path + "/sequence_tensor.pkl"
+from align_hands import *
 
 '''
 Input: json files from cmu panoptic
@@ -67,6 +68,8 @@ def pkl_to_seq():
     else:
         pkl_dirs = glob.glob(hand_data_dir + "*.pkl")
         all_sequences = []
+        print(hand_data_dir)
+        print(pkl_dirs)
         for pkl_dir in pkl_dirs:
             print(pkl_dir)
             file_object = open(pkl_dir, 'rb')
@@ -205,11 +208,25 @@ def get_angle_tensor(cur_tensor, angle_indices, seq_lengths):
         new_tensor[seq_length:, i, :] = 0
     return new_tensor
 
+def add_aligned_hands():
+    pkl_dirs = glob.glob(hand_data_dir + "*.pkl")
+    all_sequences = []
+    print(hand_data_dir)
+    print(pkl_dirs)
+    for pkl_dir in pkl_dirs:
+        print(pkl_dir)
+        file_object = open(pkl_dir, 'rb')
+        cur_hand_dict = pickle.load(file_object)
+        file_object.close()
+        align_hand_dict(cur_hand_dict)
+
+
 if __name__ == "__main__":
-    pass
     # json_to_pkl()
     # fix_data()
-    # pkl_to_seq()
+    #pkl_to_seq()
     #seq_to_tensor()
     #printgenerate_input()[0][0:20,41,:])
-    print(generate_output()[0][0:4, 1, :])
+    #print(generate_output()[0][0:4, 1, :])
+
+    add_aligned_hands()
