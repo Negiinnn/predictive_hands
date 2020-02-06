@@ -5,21 +5,10 @@ def align_hand_dict(hand_dict):
     for hand_id in hand_dict.keys():
         aligned_hands = []
         real_hands = []
-        i = 0
         for frame_number in hand_dict[hand_id]:
             for left_right in hand_dict[hand_id][frame_number]:
                 landmarks = hand_dict[hand_id][frame_number][left_right]['landmarks']
-                if 0 in landmarks:
-                    continue
                 hand_dict[hand_id][frame_number][left_right]['aligned_landmarks'] = align_hand(landmarks)
-                if i < 4:
-                    aligned_hands.append(hand_dict[hand_id][frame_number][left_right]['aligned_landmarks'])
-                    real_hands.append(hand_dict[hand_id][frame_number][left_right]['landmarks'])
-                    i += 1
-        if hand_id == '5':
-            #visualize_hands([real_hands,aligned_hands])
-            visualize_hands([real_hands, []])
-            visualize_hands([aligned_hands,[]])
 
 def align_hand(landmarks):
     points = np.copy(np.reshape(landmarks, (-1,3)))

@@ -14,7 +14,7 @@ data_path = '../../hand_data/'
 data_dirs = glob.glob(data_path + "*/hdHand3d/")
 total_hands = 0
 hand_sequences = {}
-hand_data_dir = data_path + "pkls/"
+hand_data_dir = data_path + "juno_pkls/"
 all_sequences_name = data_path + "/hand_sequences.pkl"
 sequence_tensor_name = data_path + "/sequence_tensor.pkl"
 from align_hands import *
@@ -54,7 +54,6 @@ def json_to_pkl():
             file_object = open(hand_data_dir + data_name + ".pkl", 'wb')
             pickle.dump(dir_hand_seq, file_object)
             file_object.close()
-
 '''
 Converts pkl dictionaries to numpy array
 '''
@@ -219,6 +218,9 @@ def add_aligned_hands():
         cur_hand_dict = pickle.load(file_object)
         file_object.close()
         align_hand_dict(cur_hand_dict)
+        file_object = open(pkl_dir, 'wb')
+        pickle.dump(cur_hand_dict, file_object)
+        file_object.close()
 
 
 if __name__ == "__main__":
@@ -228,5 +230,4 @@ if __name__ == "__main__":
     #seq_to_tensor()
     #printgenerate_input()[0][0:20,41,:])
     #print(generate_output()[0][0:4, 1, :])
-
     add_aligned_hands()
