@@ -14,7 +14,7 @@ data_path = '../../hand_data/'
 data_dirs = glob.glob(data_path + "*/hdHand3d/")
 total_hands = 0
 hand_sequences = {}
-hand_data_dir = data_path + "pkls/"
+hand_data_dir = data_path + "juno_pkls/"
 all_sequences_name = data_path + "/hand_sequences.pkl"
 sequence_tensor_name = data_path + "/sequence_tensor.pkl"
 from align_hands import *
@@ -54,6 +54,39 @@ def json_to_pkl():
             file_object = open(hand_data_dir + data_name + ".pkl", 'wb')
             pickle.dump(dir_hand_seq, file_object)
             file_object.close()
+
+def remove_zero():
+    pkl_dirs = glob.glob(hand_data_dir + "*.pkl")
+    all_sequences = []
+    print(hand_data_dir)
+    print(pkl_dirs)
+    total_count = 0
+    remove_count = 0
+    for pkl_dir in pkl_dirs:
+        print(pkl_dir)
+        file_object = open(pkl_dir, 'rb')
+        hand_dict = pickle.load(file_object)
+        file_object.close()
+        for hand_id in hand_dict.keys():
+            to_remove_frame_num = []
+            for frame_number in hand_dict[hand_id].keys():
+                to_remove_hand_dir = []
+                for hand_dir in hand_dict[hand_id][frame_number].keys():
+                    total_count += 1
+                    if 0 in hand_dict[hand_id][frame_number][hand_dir]['landmarks']:
+                        remove_count += 1
+                        to_remove_hand_dir.append(hand_dir)
+                for hand_dir in to_remove_hand_dir:
+                    del hand_dict[hand_id][frame_number][hand_dir]
+                if len(hand_dict[hand_id][frame_number]) == 0:
+                    to_remove_frame_num.append(frame_number)
+            for frame_number in to_remove_frame_num:
+                del hand_dict[hand_id][frame_number]
+        file_object = open(pkl_dir, 'wb')
+        pickle.dump(hand_dict, file_object)
+        file_object.close()
+        print(total_count)
+        print(remove_count)
 
 '''
 Converts pkl dictionaries to numpy array
@@ -219,6 +252,9 @@ def add_aligned_hands():
         cur_hand_dict = pickle.load(file_object)
         file_object.close()
         align_hand_dict(cur_hand_dict)
+        file_object = open(pkl_dir, 'wb')
+        pickle.dump(cur_hand_dict, file_object)
+        file_object.close()
 
 
 if __name__ == "__main__":
@@ -228,5 +264,5 @@ if __name__ == "__main__":
     #seq_to_tensor()
     #printgenerate_input()[0][0:20,41,:])
     #print(generate_output()[0][0:4, 1, :])
-
+    #remove_zero()
     add_aligned_hands()
